@@ -1,4 +1,4 @@
-System.register(['angular2/core', './todo-list.component'], function(exports_1) {
+System.register(['angular2/core', './todo-list.component', './todo'], function(exports_1) {
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -8,7 +8,7 @@ System.register(['angular2/core', './todo-list.component'], function(exports_1) 
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, todo_list_component_1;
+    var core_1, todo_list_component_1, todo_1;
     var AppComponent, TODOS;
     return {
         setters:[
@@ -17,52 +17,48 @@ System.register(['angular2/core', './todo-list.component'], function(exports_1) 
             },
             function (todo_list_component_1_1) {
                 todo_list_component_1 = todo_list_component_1_1;
+            },
+            function (todo_1_1) {
+                todo_1 = todo_1_1;
             }],
         execute: function() {
             AppComponent = (function () {
                 function AppComponent() {
                     this.todos = TODOS;
                     this.isToggleAll = false;
-                    this._resetNewTodo();
+                    this.filter = '';
+                    this.todoTitle = '';
                     this.updateStatus();
                 }
-                AppComponent.prototype._resetNewTodo = function () {
-                    this.newTodo = {
-                        id: 0,
-                        title: '',
-                        status: 'incomplete',
-                        isEditable: false
-                    };
+                AppComponent.prototype.removeFilter = function () {
+                    this.filter = '';
+                    return false;
+                };
+                AppComponent.prototype.setFilter = function (status) {
+                    this.filter = status;
+                    return false;
                 };
                 AppComponent.prototype.addTodo = function () {
-                    if (this.newTodo.title === "") {
+                    if (this.todoTitle === '') {
                         return;
                     }
-                    var todo = Object.assign({}, this.newTodo);
-                    todo.id = this.todos.length ? _.last(this.todos).id++ : 1;
-                    this.todos.push(todo);
-                    this._resetNewTodo();
+                    this.todos = this.todos.concat([new todo_1.Todo(this.todoTitle)]);
+                    this.todoTitle = '';
                     this.updateStatus();
                 };
                 AppComponent.prototype.toggleAll = function () {
                     this.isToggleAll = !this.isToggleAll;
                     var status = (this.isToggleAll) ? 'completed' : 'incomplete';
                     _.forEach(this.todos, function (n) { return n.status = status; });
+                    this.todos = this.todos.slice();
                     this.updateStatus();
                 };
                 AppComponent.prototype.clearCompleted = function () {
-                    _.remove(this.todos, function (n) {
-                        return n.status === 'completed';
-                    });
-                    _.remove(this.todos, function (n) { return n.status === 'completed'; });
+                    this.todos = _.filter(this.todos, function (n) { return n.status !== 'completed'; }).slice();
                     this.isToggleAll = false;
                     this.updateStatus();
                 };
                 AppComponent.prototype.updateStatus = function () {
-                    if (this.todos.length === 0) {
-                        this.status = 'Add some todos';
-                        return;
-                    }
                     var status = '';
                     var incompleteTodoCount = this.incompleteTodoCount();
                     if (incompleteTodoCount > 0) {
@@ -83,11 +79,20 @@ System.register(['angular2/core', './todo-list.component'], function(exports_1) 
                 AppComponent.prototype.completedTodoCount = function () {
                     return _.filter(this.todos, function (n) { return n.status === 'completed'; }).length;
                 };
+                __decorate([
+                    core_1.Input(), 
+                    __metadata('design:type', Array)
+                ], AppComponent.prototype, "todos", void 0);
+                __decorate([
+                    core_1.Input(), 
+                    __metadata('design:type', String)
+                ], AppComponent.prototype, "filter", void 0);
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'my-app',
                         directives: [todo_list_component_1.TodoListComponent],
-                        template: "\n        <section class=\"todoapp\">\n            <header class=\"header\">\n                <h1>todos</h1>\n                <input\n                    [(ngModel)]=\"newTodo.title\"\n                    (keyup.enter)=\"addTodo()\"\n                    autofocus=\"\" class=\"new-todo\" placeholder=\"What needs to be done?\">\n            </header>\n            <section class=\"main\">\n                <input class=\"toggle-all\" type=\"checkbox\" (click)=\"toggleAll()\" [checked]=\"isToggleAll\">\n                <todo-list [todos]=\"todos\" (updateStatus)=\"updateStatus($event)\"></todo-list>\n            </section>\n            <footer class=\"footer\">\n                <span class=\"todo-count\" [innerHTML]=\"status\"></span>\n                <button class=\"clear-completed\" (click)=\"clearCompleted()\" [hidden]=\"!(todos.length && completedTodoCount())\">Clear completed</button>\n            </footer>\n        </section>"
+                        styles: ["\n        #filters {\n            margin: 0;\n            padding: 0;\n            list-style: none;\n            position: absolute;\n            right: 0;\n            left: 0;\n        }\n        #filters li {\n            display: inline;\n        }\n        #filters li a {\n            color: inherit;\n            margin: 3px;\n            padding: 3px 7px;\n            text-decoration: none;\n            border: 1px solid transparent;\n            border-radius: 3px;\n        }\n        #filters li a.selected, #filters li a:hover {\n            border-color: rgba(175, 47, 47, 0.1);\n        }\n    "],
+                        template: "\n        <section class=\"todoapp\">\n            <header class=\"header\">\n                <h1>todos</h1>\n                <input\n                    [(ngModel)]=\"todoTitle\"\n                    (keyup.enter)=\"addTodo()\"\n                    autofocus=\"\" class=\"new-todo\" placeholder=\"What needs to be done?\">\n            </header>\n            <section class=\"main\">\n                <input class=\"toggle-all\" type=\"checkbox\" (click)=\"toggleAll()\" [checked]=\"isToggleAll\">\n                <todo-list [todos]=\"todos\" [filter]=\"filter\" (updateStatus)=\"updateStatus($event)\"></todo-list>\n            </section>\n            <footer class=\"footer\" [hidden]=\"todos.length === 0\">\n                <span class=\"todo-count\" [innerHTML]=\"status\"></span>\n                <ul id=\"filters\">\n                    <li>\n                        <a (click)=\"removeFilter();\" [class.selected]=\"filter === ''\" href=\"\">All</a>\n                    </li>\n                    <li>\n                        <a (click)=\"setFilter('incomplete');\" [class.selected]=\"filter === 'incomplete'\" href=\"\">Incomplete</a>\n                    </li>\n                    <li>\n                        <a (click)=\"setFilter('completed');\" [class.selected]=\"filter === 'completed'\" href=\"\">Completed</a>\n                    </li>\n                </ul>\n                <button class=\"clear-completed\" (click)=\"clearCompleted()\" [hidden]=\"!(todos.length && completedTodoCount())\">Clear completed</button>\n            </footer>\n        </section>\n    "
                     }), 
                     __metadata('design:paramtypes', [])
                 ], AppComponent);
@@ -95,9 +100,9 @@ System.register(['angular2/core', './todo-list.component'], function(exports_1) 
             })();
             exports_1("AppComponent", AppComponent);
             TODOS = [
-                { id: 1, title: 'First Item', status: 'incomplete', isEditable: false },
-                { id: 2, title: 'Second Item', status: 'incomplete', isEditable: false },
-                { id: 3, title: 'Third Item', status: 'incomplete', isEditable: false },
+                new todo_1.Todo('First Item'),
+                new todo_1.Todo('Second Item'),
+                new todo_1.Todo('Third Item')
             ];
         }
     }

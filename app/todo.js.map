@@ -1,1 +1,1 @@
-{"version":3,"file":"todo.js","sourceRoot":"","sources":["todo.ts"],"names":[],"mappings":""}
+{"version":3,"file":"todo.js","sourceRoot":"","sources":["todo.ts"],"names":["Todo","Todo.constructor"],"mappings":";;;;;YAAA;gBAIIA,cAAmBA,KAAiBA;oBAAxBC,qBAAwBA,GAAxBA,UAAwBA;oBAAjBA,UAAKA,GAALA,KAAKA,CAAYA;oBAHpCA,WAAMA,GAAUA,YAAYA,CAACA;oBAC7BA,eAAUA,GAAWA,KAAKA,CAACA;gBAEWA,CAACA;gBAC3CD,WAACA;YAADA,CAACA,AALD,IAKC;YALD,uBAKC,CAAA"}

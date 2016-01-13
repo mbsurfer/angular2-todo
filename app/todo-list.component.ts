@@ -1,11 +1,13 @@
-import {Component, EventEmitter} from 'angular2/core';
-import {Todo} from './todo.ts';
+import {Component, EventEmitter, Output} from 'angular2/core';
+import {Todo} from './todo'
+import {TodoStatusPipe} from './todo-status.pipe';
 
 declare var _;
 
 @Component({
     selector: 'todo-list',
-    inputs: ['todos'],
+    pipes: [TodoStatusPipe],
+    inputs: ['todos', 'filter'],
     outputs: ['updateStatus'],
     styles: [`
         .todo-list li {
@@ -14,7 +16,7 @@ declare var _;
         .todo-list li input.edit {
             display: block;
             float: right;
-            width: 85%;
+            width: 90%;
         }
         .todo-list li input.edit.hidden {
             display: none;
@@ -22,7 +24,7 @@ declare var _;
     `],
     template: `
         <ul class="todo-list">
-            <li *ngFor="#todo of todos" [class.completed]="isCompleted(todo)">
+            <li *ngFor="#todo of todos | todoStatus:filter" [class.completed]="isCompleted(todo)">
 
                 <div class="view" [hidden]="todo.isEditable">
                     <input class="toggle" type="checkbox" (click)="toggleTodo(todo)" [checked]="isCompleted(todo)">
@@ -44,6 +46,9 @@ declare var _;
 })
 export class TodoListComponent {
     public todos: Todo[];
+    public filter: string;
+
+    @Output()
     public updateStatus = new EventEmitter<Todo>();
 
     constructor() {
@@ -61,6 +66,15 @@ export class TodoListComponent {
 
     public toggleTodo(todo: Todo) {
         todo.status = (todo.status === 'completed') ? 'incomplete' : 'completed';
+
+        //need to rebuild todos so that the filter is applied
+        const i = this.todos.indexOf(todo);
+        this.todos = [
+            ...this.todos.slice(0, i),
+            todo,
+            ...this.todos.slice(i + 1)
+        ];
+
         this.updateStatus.emit(todo);
     }
 

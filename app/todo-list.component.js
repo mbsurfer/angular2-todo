@@ -1,4 +1,4 @@
-System.register(['angular2/core'], function(exports_1) {
+System.register(['angular2/core', './todo-status.pipe'], function(exports_1) {
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -8,12 +8,15 @@ System.register(['angular2/core'], function(exports_1) {
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1;
+    var core_1, todo_status_pipe_1;
     var TodoListComponent;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
+            },
+            function (todo_status_pipe_1_1) {
+                todo_status_pipe_1 = todo_status_pipe_1_1;
             }],
         execute: function() {
             TodoListComponent = (function () {
@@ -30,6 +33,11 @@ System.register(['angular2/core'], function(exports_1) {
                 };
                 TodoListComponent.prototype.toggleTodo = function (todo) {
                     todo.status = (todo.status === 'completed') ? 'incomplete' : 'completed';
+                    //need to rebuild todos so that the filter is applied
+                    var i = this.todos.indexOf(todo);
+                    this.todos = this.todos.slice(0, i).concat([
+                        todo
+                    ], this.todos.slice(i + 1));
                     this.updateStatus.emit(todo);
                 };
                 TodoListComponent.prototype.removeTodo = function (todo) {
@@ -39,13 +47,18 @@ System.register(['angular2/core'], function(exports_1) {
                 TodoListComponent.prototype.isCompleted = function (todo) {
                     return todo.status === 'completed';
                 };
+                __decorate([
+                    core_1.Output(), 
+                    __metadata('design:type', Object)
+                ], TodoListComponent.prototype, "updateStatus", void 0);
                 TodoListComponent = __decorate([
                     core_1.Component({
                         selector: 'todo-list',
-                        inputs: ['todos'],
+                        pipes: [todo_status_pipe_1.TodoStatusPipe],
+                        inputs: ['todos', 'filter'],
                         outputs: ['updateStatus'],
-                        styles: ["\n        .todo-list li {\n            overflow: hidden;\n        }\n        .todo-list li input.edit {\n            display: block;\n            float: right;\n            width: 85%;\n        }\n        .todo-list li input.edit.hidden {\n            display: none;\n        }\n    "],
-                        template: "\n        <ul class=\"todo-list\">\n            <li *ngFor=\"#todo of todos\" [class.completed]=\"isCompleted(todo)\">\n\n                <div class=\"view\" [hidden]=\"todo.isEditable\">\n                    <input class=\"toggle\" type=\"checkbox\" (click)=\"toggleTodo(todo)\" [checked]=\"isCompleted(todo)\">\n                    <label\n                        (dblclick)=\"edit(todo, editbox)\"\n                        [contentEditable]=\"todo.isEditable\">{{todo.title}}</label>\n                    <button class=\"destroy\" (click)=\"removeTodo(todo)\"></button>\n                </div>\n\n                <input #editbox class=\"edit\"\n                    (keyup.enter)=\"save(todo)\"\n                    (blur)=\"save(todo)\"\n                    [(ngModel)]=\"todo.title\"\n                    [class.hidden]=\"!todo.isEditable\">\n\n            </li>\n        </ul>\n    "
+                        styles: ["\n        .todo-list li {\n            overflow: hidden;\n        }\n        .todo-list li input.edit {\n            display: block;\n            float: right;\n            width: 90%;\n        }\n        .todo-list li input.edit.hidden {\n            display: none;\n        }\n    "],
+                        template: "\n        <ul class=\"todo-list\">\n            <li *ngFor=\"#todo of todos | todoStatus:filter\" [class.completed]=\"isCompleted(todo)\">\n\n                <div class=\"view\" [hidden]=\"todo.isEditable\">\n                    <input class=\"toggle\" type=\"checkbox\" (click)=\"toggleTodo(todo)\" [checked]=\"isCompleted(todo)\">\n                    <label\n                        (dblclick)=\"edit(todo, editbox)\"\n                        [contentEditable]=\"todo.isEditable\">{{todo.title}}</label>\n                    <button class=\"destroy\" (click)=\"removeTodo(todo)\"></button>\n                </div>\n\n                <input #editbox class=\"edit\"\n                    (keyup.enter)=\"save(todo)\"\n                    (blur)=\"save(todo)\"\n                    [(ngModel)]=\"todo.title\"\n                    [class.hidden]=\"!todo.isEditable\">\n\n            </li>\n        </ul>\n    "
                     }), 
                     __metadata('design:paramtypes', [])
                 ], TodoListComponent);

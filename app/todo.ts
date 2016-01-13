@@ -1,6 +1,6 @@
-export interface Todo {
-    id: number;
-    title: string;
-    status: string;
-    isEditable: boolean;
+export class Todo {
+    status:string = 'incomplete';
+    isEditable:boolean = false;
+
+    constructor(public title:string = ''){}
 }
